@@ -8,35 +8,26 @@ use Livewire\Attributes\Url;
 new class extends Component {
     use WithPagination;
 
-    #[Url(keep: true, history: true)]
+    #[Url]
     public $buscar = '';
-
-    #[Url(keep: true, history: true)]
+    #[Url]
     public $categoria = '';
-
-    #[Url(keep: true, history: true)]
+    #[Url]
     public $almacen_id = '';
-
-    #[Url(keep: true, history: true)]
+    #[Url]
     public $stock_bajo = false;
 
-
-
-
-    public function updatedBuscar() { $this->resetPage(); }
-    public function updatedCategoria() { $this->resetPage(); }
-    public function updatedAlmacenId() { $this->resetPage(); }
-    public function updatedStockBajo() { $this->resetPage(); }
+    public function updated()
+    {
+        $this->resetPage();
+    }
 
     public function with(): array
     {
         $consulta = Producto::with(['cantidad.almacen']);
 
         if ($this->buscar) {
-            $consulta->where(function ($q) {
-                $q->where('nombre', 'like', '%' . $this->buscar . '%')
-                  ->orWhere('descripcion', 'like', '%' . $this->buscar . '%');
-            });
+            $consulta->where('nombre', 'like', '%' . $this->buscar . '%');
         }
 
         if ($this->categoria) {
@@ -64,36 +55,31 @@ new class extends Component {
 ?>
 
 <div>
-    <div class="flex flex-wrap items-center gap-4 mb-4">
-        <input type="text" 
-               wire:model.live.debounce.400ms="buscar" 
-               placeholder="Buscar por nombre o código"
-               class="border rounded px-3 py-2 bg-white">
+    <input type="text" wire:model.live.debounce.400ms="buscar" placeholder="Buscar por nombre o código">
 
-        <select wire:model.live="categoria" class="border rounded px-3 py-2 bg-white">
-            <option value="">Todas las categorias</option>
-            <option value="Abrazadera">Abrazaderas</option>
-            <option value="Alicate">Alicates</option>
-            <option value="Broca">Brocas</option>
-            <option value="Cable">Cables</option>
-            <option value="Cemento">Cementos</option>
-            <option value="Llave">Llaves</option>
-            <option value="Martillo">Martillos</option>
-            <option value="Tubo">Tubos</option>
-        </select>
+    <select wire:model.live="categoria">
+        <option value="">Todas las categorias</option>
+        <option value="Abrazadera">abrazaderas</option>
+        <option value="Alicate">alicates</option>
+        <option value="Broca">brocas</option>
+        <option value="Cable">cables</option>
+        <option value="Cemento">cementos</option>
+        <option value="Llave">llaves</option>
+        <option value="Martillo">martillos</option>
+        <option value="Tubo">tubos</option>
+    </select>
 
-        <select wire:model.live="almacen_id" class="border rounded px-3 py-2 bg-white">
-            <option value="">Todos los almacenes</option>
-            @foreach ($almacenes as $almacen)
-                <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
-            @endforeach
-        </select>
+    <select wire:model.live="almacen_id">
+        <option value="">Todos los almacenes</option>
+        @foreach ($almacenes as $almacen)
+            <option value="{{ $almacen->id }}">{{ $almacen->nombre }}</option>
+        @endforeach
+    </select>
 
-        <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-2 rounded border">
-            <input type="checkbox" wire:model.live="stock_bajo">
-            <span>Solo stock bajo (≤ 10)</span>
-        </label>
-    </div>
+    <label>
+        <input type="checkbox" wire:model.live="stock_bajo">
+        Solo stock bajo (≤ 10)
+    </label>
 
     <table>
         @forelse ($productos as $producto)

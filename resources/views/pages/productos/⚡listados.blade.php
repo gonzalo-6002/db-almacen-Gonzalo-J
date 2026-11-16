@@ -11,8 +11,11 @@ new class extends Component
 ?>
 
 @extends('layouts.app')
+
 @section('contenido')
+    @livewire('productos-index')
+@endsection
 
-@livewire('productos-index')
-
+@section('formulario')
+    @livewire('productos-form')
 @endsection
