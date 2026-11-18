@@ -117,3 +117,13 @@ php artisan optimize:clear
 ## Filtro propio implementado: Alerta de Stock Bajo
 
 Se implementó un filtro personalizado mediante una casilla de verificación (**Solo stock bajo ≤ 10**) en el listado de productos. Este filtro utiliza una consulta relacional (`whereHas('cantidad')`) sobre la columna `stock` de la tabla `stock__almacen` para identificar rápidamente aquellos artículos cuya existencia es menor o igual a 10 unidades. Es de gran utilidad para el almacenero porque permite detectar productos en estado crítico de reposición sin tener que revisar manualmente los 5,000 registros del inventario.
+
+## Validación de Formularios y API (Tarea 03)
+
+Se implementaron formularios reactivos con validación en tiempo real en Livewire y reglas sincronizadas en los `FormRequest` de la API para **Productos** y **Movimientos**.
+
+| Módulo | Campo | Dato inválido enviado | Regla que lo impide | Mensaje de rechazo |
+| :--- | :--- | :--- | :--- | :--- |
+| **Productos** | `precio` | `-5.00` | `'gt:0'` | El precio debe ser mayor que cero. |
+| **Productos** | `codigo` | `HER-0001` (duplicado) | `Rule::unique('productos', 'codigo')` | Ya existe un producto con ese código. |
+| **Movimientos** | `tipo_movimiento` | `prestamo` | `'in:entrada,salida'` | El tipo de movimiento debe ser entrada o salida. |

@@ -4,6 +4,7 @@ use App\Models\Almacen;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\On;
 
 new class extends Component {
     use WithPagination;
@@ -20,6 +21,11 @@ new class extends Component {
     public function updated()
     {
         $this->resetPage();
+    }
+
+    #[On('producto-guardado')]
+    public function refrescar()
+    {    
     }
 
     public function with(): array
@@ -84,8 +90,12 @@ new class extends Component {
     <table>
         @forelse ($productos as $producto)
             <tr>
+                <td>{{ $producto->codigo }}</td>
                 <td>{{ $producto->nombre }}</td>
                 <td>{{ $producto->cantidad->first()?->stock }}</td>
+                <td>
+                    <button wire:click="$dispatch('editar-producto', {id: {{ $producto->id}}})">Editar</button>
+                </td>
             </tr>
         @empty
             <tr>

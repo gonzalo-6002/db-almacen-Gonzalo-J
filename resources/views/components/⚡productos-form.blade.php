@@ -1,11 +1,11 @@
 <?php
 
 use App\Models\Producto;
-use Illuminate\Validation\Rules;
-use Livewire\attributes\On;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\On;
 use Livewire\Component;
 new class extends Component{
-    public ?producto $producto=null;
+    public ?Producto $producto=null;
     public $codigo='';
     public $nombre='';
     public $descripcion='';
@@ -14,10 +14,10 @@ new class extends Component{
     {
         return [
             'codigo' => ['required','max:20', 'alpha_dash',
-                Rules::unique('productos','codigo')->ignore($this->producto?->id)],
+                Rule::unique('productos','codigo')->ignore($this->producto?->id)],
             'nombre' => ['required','max:100'],
             'descripcion' => ['required', 'max:500'],
-            'precio' => ['required', 'numeric','gt:0', 'max:999999.99','decimal:0.2'],
+            'precio' => ['required', 'numeric','gt:0', 'max:999999.99','decimal:0,2'],
         ];
     }
     
@@ -39,33 +39,54 @@ new class extends Component{
             'precio.decimal' => 'El precio admite como máximo 2 decimales.',
         ];
     }
-
-     
+public function guardar()
+{
+    $datos = $this->validate();
+    if ($this->producto) {
+        $this->producto->update($datos);
+    } else {
+        Producto::create($datos);
+    }
+    $this->cancelar();
+    session()->flash('ok', 'Producto guardado correctamente.');
+    $this->dispatch('producto-guardado');
+}    
+public function cancelar()
+{
+    $this->reset();
+    $this->resetValidation();
+}
+#[On('editar-producto')]
+public function editar($id)
+{
+    $this->producto = Producto::findOrFail($id);
+    $this->fill($this->producto->only(
+        'codigo', 'nombre', 'descripcion', 'precio'));
+    $this->resetValidation();
 }
 
-
-new class extends Component
+public function updated($propiedad)
 {
-    //
-};
+    if ($propiedad === 'codigo') {
+        $this->codigo = trim((string) $this->codigo);
+    }
+    $this->validateOnly($propiedad);
+}
+}
 ?>
-
 <div>
     @if (session('ok'))
         <p class="text-green-700">{{ session('ok') }}</p>
     @endif
-
-    <form wire:submit="guardar" class="space-y-4">
+    <form wire:submit="guardar"class="space-y-4">
         <h2>{{ $producto ? 'Editar producto' : 'Nuevo producto' }}</h2>
-
         <div>
-            <label for="codigo">Código</label>
-            <input id="codigo" type="text" wire:model.blur="codigo">
+            <label for="codigo">Codigo</label>
+            <input id="codigo" type ="text" wire:model.blur="codigo">
             @error('codigo')
                 <p class="text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
-
         <div>
             <label for="nombre">Nombre</label>
             <input id="nombre" type="text" wire:model.blur="nombre">
@@ -75,7 +96,7 @@ new class extends Component
         </div>
 
         <div>
-            <label for="descripcion">Descripción</label>
+            <label for="descripcion">Descripcion</label>
             <textarea id="descripcion" wire:model.blur="descripcion"></textarea>
             @error('descripcion')
                 <p class="text-sm text-red-600">{{ $message }}</p>
@@ -84,16 +105,16 @@ new class extends Component
 
         <div>
             <label for="precio">Precio</label>
-            <input id="precio" type="number" step="0.01" wire:model.blur="precio">
+            <input id="precio" type="text" wire:model.blur="precio">
             @error('precio')
                 <p class="text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>
-
+        
         <button type="submit">Guardar</button>
-
         @if ($producto)
             <button type="button" wire:click="cancelar">Cancelar</button>
         @endif
     </form>
 </div>
+
