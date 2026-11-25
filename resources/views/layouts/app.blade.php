@@ -8,13 +8,14 @@
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto grid grid-cols-6 py-10 px-6 mt-7">
-        <div class= "col-span-1">
-            @yield('menu')</div> 
-        <div class="col-span-3">
-            @yield('contenido')</div>
-        <div class="col-span-2">
-            @yield('formulario')</div>
-    </div>
+    @auth
+        <span>{{ auth()->user()->name }}</span>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button>Salir</button>
+        </form>
+    @endauth
+
+    {{ $slot }}
 </body>
 </html>
